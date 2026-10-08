@@ -30,6 +30,8 @@
 
 首先，下载或自行制作[补丁固件](../packages/client-patch/README.md)，重命名为 `root_patched.squashfs`。
 
+LX06 **1.94.14** 请先查看[同版本适配说明](lx06-1.94.14.md)，不要刷入 1.94.13；`identify` 显示的是 USB 协议版本，不是音箱 ROM 版本。
+
 然后，下载刷机工具：https://androidmtk.com/download-amlogic-flash-tool
 
 把下载好的刷机工具文件夹解压到桌面，重命名为 `Amlogic_Flash_Tool_v6.0.0`
@@ -85,6 +87,8 @@
 
 刷机成功后，补丁固件默认开启 SSH 功能，默认密码 `open-xiaoai`
 
+以上密码适用于对应预制镜像。使用 `build_verified.py` 自行构建 LX06 1.94.14 时，密码以输出目录里的私密 `SSH-CREDENTIALS.json` 为准，不要把该文件公开。
+
 ```shell
 ssh -o HostKeyAlgorithms=+ssh-rsa root@你的小爱音箱局域网IP地址
 # 比如：ssh -o HostKeyAlgorithms=+ssh-rsa root@192.168.31.227
@@ -100,6 +104,8 @@ ssh -o HostKeyAlgorithms=+ssh-rsa root@你的小爱音箱局域网IP地址
 ### 更新系统
 
 小爱音箱有 2 套系统，上面我们只是将 `system0` 刷成了打补丁后的系统。
+
+双槽不等于恢复保证：切回 `boot1` 需要另一槽仍完整且可启动。LX06 1.94.14 的历史记录没有测试 boot1 回退，也没有刷后整分区读回；详见[验证范围](lx06-1.94.14.md#兼容性与实测范围)。
 
 如果之后你想要更新系统，或者换回原来的系统，将启动分支设置成 `boot1` 重启即可。
 

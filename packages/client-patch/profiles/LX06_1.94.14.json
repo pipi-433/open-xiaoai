@@ -1,0 +1,21 @@
+{
+  "model": "LX06",
+  "version": "1.94.14",
+  "otaFilename": "mico_all_ce7185fc5_1.94.14.bin",
+  "otaURL": "https://cdn.cnbj1.fds.api.mi-img.com/xiaoqiang/rom/lx06/mico_all_ce7185fc5_1.94.14.bin",
+  "otaBytes": 43478680,
+  "otaMD5": "b66fe108ee32afdfaf020cace7185fc5",
+  "otaSHA256": "38428e73499ad832dd42c13492b391aa369b9c41d69fd46106707e671a84e27f",
+  "rootfsSHA256": "bdcac4449491bfaa9b3960ee006fd6e4932a9dae4473736fc808564d5eab7439",
+  "partitionLimitBytes": 41943040,
+  "audioLibrarySHA256": "ae3f7ca5502f74eb88d2001253cb0c3cd4fdb9d6e860c902b44964f0aa2dc65c",
+  "audioLibraryOffset": 773628,
+  "patches": {
+    "01-ssh.patch": "916200aba8161ee262e12981988bcd1b6f4f8d63ac5f398a8ba67860b652ba52",
+    "02-login.patch": "78e0cc6c1846a855533661c1c7129d5826e973ef482cf35124f001ba3762b54d",
+    "03-ota.patch": "e758aecbe0e846bd34113b31893278e338b49117b59de3bd43932d824414c53e",
+    "04-start.patch": "ff9ee40ffea026e982da0d224c43159664767b1258ede62958aa4d9b35d21fea",
+    "LX06/01-asound.patch": "8e2c59317ac4b762a13ca19a5cf8620367e90b5fc73d2c529f7045e3dda6f15d",
+    "LX06/02-asound-dts.patch": "9042e79608eea17618b6159307929acde360f68e4630126f3abf8ceda71266c0"
+  }
+}

@@ -18,6 +18,8 @@
 - [Xiaomi 智能音箱 Pro v1.58.6](https://github.com/idootop/open-xiaoai/releases/tag/OH2P_1.58.6)
 - [小爱音箱 Pro v1.94.13](https://github.com/idootop/open-xiaoai/releases/tag/LX06_1.94.13)
 
+LX06 已有机型支持；对于 **1.94.14**，另有[同版本校验构建与验证记录](../../docs/lx06-1.94.14.md)。这是本地构建入口，不是已经发布的固件下载链接，不应使用 1.94.13 代替。
+
 > [!TIP]
 > 里面有两个文件，下载 `patched` 那个：
 >
@@ -32,12 +34,20 @@
 > 如果上面没有你的版本，请升级设备固件到最新版本，或者按照下面的教程自行制作固件。
 
 > [!CAUTION]
-> 当前支持的最新固件版本为：
+> 本节当前列出的预制固件下载版本为：
 >
 > - Xiaomi 智能音箱 Pro 👉 [v1.62.2](https://github.com/OwnDing/open-xiaoai/releases/tag/OH2P_1.62.2)
 > - 小爱音箱 Pro 👉 [v1.94.13](https://github.com/idootop/open-xiaoai/releases/tag/LX06_1.94.13)
 >
 > 更新版本的固件可能存在变化，导致刷机失败，设备变砖，请自行评估风险。
+
+### 已校验的本地构建版本
+
+| 机型 / ROM | 入口 | 状态 |
+| --- | --- | --- |
+| LX06 / 1.94.14 | `python3 src/build_verified.py --ota /absolute/input.bin --output /absolute/new-output` | 官方 OTA 摘要、补丁与音频库偏移检查；离线复解包/重复打包通过；历史单机启动验证见[说明](../../docs/lx06-1.94.14.md) |
+
+新入口不访问小米账号、不刷写设备，不替代下文的通用构建流程。它只接受指定 profile，失败时停止，不强行应用模糊补丁。SSH 密码随机生成并保存在私密输出目录，不能沿用预制固件的默认密码说明。
 
 ## 制作固件
 

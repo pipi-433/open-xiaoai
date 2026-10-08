@@ -46,5 +46,8 @@ __pycache__
 *.pem
 .mi.json
 xiaozhi.json
+SSH-CREDENTIALS.json
+*.squashfs
+packages/client-patch/assets/
+packages/client-patch/verified-output*/
 open-xiaoai.node
-

@@ -63,6 +63,8 @@ cd packages/client-rust
 cross build --release --target armv7-unknown-linux-gnueabihf
 ```
 
+LX06 1.94.14 实测内核报告 `aarch64`，但用户态和加载器为 ARM32 hard-float；仍需上面的 ARMv7 目标，不能仅按 `uname -m` 下载 ARM64 程序。新版客户端还必须与新版 Server 的协议配套，见[LX06 验证范围](../../docs/lx06-1.94.14.md)。
+
 > [!TIP]
 > 如果你是 Apple Silicon 芯片，为了能够正常使用 cross 交叉编译镜像，请先在 Docker Desktop - Settings - General - Virtual Machine Options 中打开 Apple Virtual framework 选项，然后开启 `Use Rosetta for x86_64/amd64 emulation on Apple Silicon`
 

@@ -34,6 +34,12 @@ async def after_wakeup(speaker):
 
 
 APP_CONFIG = {
+    # Exact matches after STT, without enabling the backend intent module.
+    # Replace/add assistant names here when changing the wake word; [] disables.
+    "local_exit_commands": [
+        "退出对话", "结束对话", "关闭对话", "结束聊天", "不用了",
+        "关闭小智", "再见小智", "关闭小七", "再见小七", "小七同学再见",
+    ],
     "wakeup": {
         # 自定义唤醒词列表（英文字母要全小写）
         "keywords": [

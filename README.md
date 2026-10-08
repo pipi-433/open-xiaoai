@@ -181,6 +181,8 @@
 
 | 文档 | 内容 |
 | --- | --- |
+| [2026-10-08 更新说明](docs/updates-2026-10-08.md) | LX06 1.94.14 校验构建、本地退出修复、测试和未覆盖范围 |
+| [LX06 1.94.14 同版本适配](docs/lx06-1.94.14.md) | 机型/ROM 核验、Linux/WSL 构建、ARM32 客户端、实机记录与恢复边界 |
 | [Home Assistant 接入](deploy/homeassistant/README.md) | 米家官方集成、HACS 与海尔智家集成、让小七认识新设备 |
 | [Hermes 部署说明](deploy/hermes/README.md) | 接入方式、定时任务、语音教的场景与联动、主动播报、工具调用防护 |
 | [电脑语音终端](examples/voice-terminal/README.md) | 安装、配置、开机自启、多设备共用一个后端 |

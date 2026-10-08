@@ -6,6 +6,7 @@ import time
 
 from config import APP_CONFIG
 from xiaozhi.event import EventManager
+from xiaozhi.local_exit import is_local_exit_command
 from xiaozhi.ref import set_xiaozhi
 from xiaozhi.services.audio.kws import KWS
 from xiaozhi.services.audio.vad import VAD
@@ -235,6 +236,8 @@ class XiaoZhi:
 
     def _on_incoming_audio(self, data):
         """接收音频数据回调"""
+        if EventManager.conversation_closed:
+            return
         if self.tts_output_mode == "native_xiaomi":
             return
         if self.device_state == DeviceState.SPEAKING:
@@ -251,6 +254,9 @@ class XiaoZhi:
                 data = json.loads(json_data)
             else:
                 data = json_data
+
+            if EventManager.conversation_closed:
+                return
 
             # 处理不同类型的消息
             msg_type = data.get("type", "")
@@ -329,6 +335,8 @@ class XiaoZhi:
 
     def _handle_tts_start(self):
         """处理TTS开始事件"""
+        if EventManager.conversation_closed:
+            return
         if (
             self.device_state == DeviceState.IDLE
             or self.device_state == DeviceState.LISTENING
@@ -344,6 +352,10 @@ class XiaoZhi:
         text = data.get("text", "")
         if text:
             print(f"💬 我说：{text}")
+            if get_env("CLI") and is_local_exit_command(text, APP_CONFIG):
+                EventManager.on_local_exit()
+                print("👋 本地退出指令，等待下一次唤醒")
+                return
             EventManager.on_stt()
             self.schedule(lambda: self.set_chat_message("user", text))
 

@@ -39,6 +39,12 @@ class __EventManager:
         self.next_step_loop = None
         self.session_future = None
         self.state_lock = threading.Lock()
+        self._conversation_closed = False
+
+    @property
+    def conversation_closed(self):
+        with self.state_lock:
+            return self._conversation_closed
 
     @staticmethod
     def _resolve_future(future, result):
@@ -51,8 +57,15 @@ class __EventManager:
         step_data=None,
         new_session=False,
         ignored_steps=(),
+        close_conversation=False,
     ):
         with self.state_lock:
+            if close_conversation:
+                self._conversation_closed = True
+            elif step == Step.on_wakeup:
+                self._conversation_closed = False
+            elif self._conversation_closed:
+                return None
             if self.current_step in ignored_steps:
                 return None
             if new_session:
@@ -140,6 +153,13 @@ class __EventManager:
     def on_wakeup(self):
         """用户唤醒（你好小智）"""
         self._begin_session(Step.on_wakeup)
+
+    def on_local_exit(self):
+        """Latch closed before aborting, so late STT/TTS cannot restart it."""
+        if not get_env("CLI"):
+            return
+        session_id = self._set_step(Step.on_interrupt, new_session=True, close_conversation=True)
+        self.start_session(session_id, Step.on_interrupt)
 
     def on_tts_end(self, session_id):
         """TTS结束"""
@@ -273,6 +293,7 @@ class __EventManager:
             if session_id != self.session_id:
                 return
             self.current_step = Step.idle
+            self._conversation_closed = True
         kws = get_kws()
         kws.pause()
         HEALTH.emit("session_exit_start", session_id=session_id, reason="no_speech_timeout")

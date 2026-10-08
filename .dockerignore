@@ -23,6 +23,7 @@ examples/migpt/migpt/open-xiaoai.node
 !examples/xiaozhi/Cargo.toml
 !examples/xiaozhi/Cargo.lock
 !examples/xiaozhi/config.py
+!examples/xiaozhi/asr-corrections.json
 !examples/xiaozhi/main.py
 !examples/xiaozhi/uv.lock
 !examples/xiaozhi/.python-version

@@ -8,6 +8,8 @@ import json
 import sys
 import types
 import unittest
+import tempfile
+from unittest.mock import patch
 from pathlib import Path
 
 # Stub the xiaozhi-server modules the provider imports.
@@ -29,6 +31,68 @@ def user(text):
 
 
 class ProviderTests(unittest.TestCase):
+    def test_real_shared_correction_module_reaches_model(self):
+        # Simulate the production relative import using the real shared code,
+        # not a mock correction callback or a live model/API request.
+        root = Path(__file__).resolve().parents[3]
+        correction_file = root / 'examples/xiaozhi/xiaozhi/text_corrections.py'
+        helper_spec = importlib.util.spec_from_file_location('correction_test_pkg.text_corrections', correction_file)
+        helper = importlib.util.module_from_spec(helper_spec)
+        helper_spec.loader.exec_module(helper)
+        package = types.ModuleType('correction_test_pkg')
+        package.__path__ = [str(Path(__file__).parent)]
+        with patch.dict(sys.modules, {'correction_test_pkg': package, 'correction_test_pkg.text_corrections': helper}):
+            spec = importlib.util.spec_from_file_location('correction_test_pkg.hermes', Path(__file__).with_name('hermes.py'))
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as directory:
+            table = Path(directory) / 'asr-corrections.json'
+            table.write_text(json.dumps({'version': 1, 'enabled': True, 'rules': [{'source': '名称甲', 'target': '名称乙'}]}))
+            provider = module.LLMProvider({'api_key': 'x'})
+            sent = []
+
+            def events(dialogue):
+                sent.append(dialogue)
+                yield 'text', '好的。'
+
+            provider._events = events
+            with patch.dict('os.environ', {'OPEN_XIAOAI_CORRECTIONS_FILE': str(table)}):
+                self.assertEqual(''.join(provider.response('s', [user('名称甲')])), '好的。')
+            self.assertEqual(module._message_text(sent[0][-1]), '名称乙')
+
+    def test_correction_reaches_model_and_preserves_asr_wrapper(self):
+        original = [user('名称甲')]
+        provider = hermes.LLMProvider({'api_key': 'x'})
+        sent = []
+
+        def events(dialogue):
+            sent.append(dialogue)
+            yield 'text', '好的。'
+
+        provider._events = events
+        with patch.object(hermes, 'correct_text', return_value='名称乙'):
+            self.assertEqual(''.join(provider.response('s', original)), '好的。')
+        wrapper = json.loads(sent[0][-1]['content'])
+        self.assertEqual(wrapper['content'], '名称乙')
+        self.assertEqual(wrapper['language'], 'zh')
+        self.assertEqual(json.loads(original[-1]['content'])['content'], '名称甲')
+
+    def test_correction_changes_latest_user_only(self):
+        provider = hermes.LLMProvider({'api_key': 'x'})
+        original = [user('名称甲'), {'role': 'assistant', 'content': '名称甲'}, user('名称甲')]
+        sent = []
+
+        def events(dialogue):
+            sent.append(dialogue)
+            yield 'text', '好的。'
+
+        provider._events = events
+        with patch.object(hermes, 'correct_text', return_value='名称乙'):
+            ''.join(provider.response('s', original))
+        self.assertEqual(sent[0][0]['content'], original[0]['content'])
+        self.assertEqual(sent[0][1]['content'], original[1]['content'])
+        self.assertEqual(hermes._message_text(sent[0][-1]), '名称乙')
+
     def run_turn(self, text, *streams):
         """Replays scripted Hermes streams; returns (spoken text, requests sent)."""
         provider = hermes.LLMProvider({"api_key": "x"})

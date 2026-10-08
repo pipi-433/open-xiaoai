@@ -30,6 +30,13 @@ Hermes that prompt conflicts with SOUL.md and made the model repeat a stale
 import json
 import re
 
+try:
+    from .text_corrections import correct_text
+except ImportError:
+    # Standalone provider tests / manual copies without the optional module.
+    def correct_text(text):
+        return text
+
 import httpx
 
 from config.logger import setup_logging
@@ -409,6 +416,21 @@ class LLMProvider(LLMProviderBase):
             dialogue = slimmed
         users = [m for m in dialogue if m.get("role") == "user"]
         request = _message_text(users[-1]) if users else ""
+        corrected = correct_text(request)
+        if users and isinstance(users[-1]["content"], str) and corrected != request:
+            # Only this turn is corrected; never rewrite history, system text,
+            # assistant output, or cached tool results.
+            content = users[-1]["content"]
+            try:
+                wrapper = json.loads(content) if isinstance(content, str) else None
+            except (TypeError, ValueError):
+                wrapper = None
+            if isinstance(wrapper, dict) and "content" in wrapper:
+                wrapper["content"] = corrected
+                users[-1]["content"] = json.dumps(wrapper, ensure_ascii=False)
+            else:
+                users[-1]["content"] = corrected
+            request = corrected
 
         if self.tool_guard and is_unclear_after_schedule(dialogue, request):
             logger.bind(tag=TAG).warning(f"刚定好定时任务，这句没说设备和时间，只回答或反问: {request}")

@@ -185,6 +185,39 @@ APP_CONFIG = {
 
 文字识别结果取决于你的小智 AI 服务器端的语音识别方案。
 
+### 可配置的识别后纠错表
+
+仓库提供默认空表 [`asr-corrections.json`](asr-corrections.json)，初始内容如下，没有个人词条，也不会改变识别结果：
+
+```json
+{"version": 1, "enabled": false, "rules": []}
+```
+
+这是 **STT 文字出来后的字面纠错**，不是 SenseVoice 声学热词或模型训练，不会提高原始录音的清晰度。桥接用它显示识别文字；配套的 Hermes provider 在工具判断/调用模型前，对本轮用户输入使用同一张表，只改当前 STT，不改历史、系统提示或助手回答。
+
+以后自行填写时，先把空表复制为 `asr-corrections.local.json`；该文件已加入 Git 忽略，不应把个人设备词条公开。下面只是格式示例，并没有写入空表：
+
+```json
+{
+  "version": 1,
+  "enabled": true,
+  "rules": [
+    {"source": "示例误识别名称", "target": "示例正确名称", "mode": "name"}
+  ]
+}
+```
+
+- `version` 当前为 `1`；`enabled: false` 或空 `rules` 不作纠错。
+- `source` 是误识别文字，至少 2 字；`target` 是正确名称；不支持正则表达式。
+- `mode: "exact"`（默认）只匹配整句；`mode: "name"` 在句中作字面名称替换。长名称优先、单次替换，不连锁把替换结果再套另一条规则。
+- 冲突词条、格式错误、过大文件保留原文。也检查常见开关/否定词和数字是否被改动；这只是基础保护，不是任意词表的语义安全保证。错误的设备名称映射仍可能误控，请只填自己确认的名称、避免歧义，不用整句映射改操作或参数。
+- 本地直接运行：优先读取旁边的 `asr-corrections.local.json`，不用修改公开模板。每次读取 STT 时加载文件，填写后无需重启模型。
+- Docker：在桥接和后端两个 Compose 项目的 `.env` 里，将 `OPEN_XIAOAI_CORRECTIONS_PATH` 指向同一份本地表的绝对路径，再重建容器。表以只读方式挂载，修改词条无需重建；切换挂载文件才需重建。
+
+手动部署小智后端时，除 `hermes.py` 外，还需把 `xiaozhi/text_corrections.py` 放入后端 `core/providers/llm/hermes/`，挂载同一张表，并设置 `OPEN_XIAOAI_CORRECTIONS_FILE` 为容器内表路径；仓库的 `deploy/sherpa-tts/docker-compose.yml` 已给出配置。不包含模块的旧部署会沿用原始文本，不会凭空生效；只改桥接展示不等于模型也收到纠正结果。
+
+这张表不会改变 KWS 唤醒词或原生小爱识别，也不修改本地退出短语。退出匹配仍先使用原始 STT，避免名称规则产生新退出指令。验证时先对不涉及真实设备操作的文本测试，再尝试家居命令。
+
 ### Q：唤醒词一直没有反应？
 
 唤醒词检测的默认阈值是 0.2。某个词不敏感时，可以用 `wakeup.keyword_thresholds` 单独调低它（`vad.threshold` 只影响唤醒后判断你有没有在说话，与唤醒词无关），然后重启应用 / Docker：

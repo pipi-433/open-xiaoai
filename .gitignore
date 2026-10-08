@@ -46,6 +46,7 @@ __pycache__
 *.pem
 .mi.json
 xiaozhi.json
+asr-corrections.local.json
 SSH-CREDENTIALS.json
 *.squashfs
 packages/client-patch/assets/

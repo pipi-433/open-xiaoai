@@ -10,6 +10,7 @@ services:
     environment:
       - TZ=Asia/Shanghai
       - XIAOZHI_TTS_OUTPUT_MODE=${XIAOZHI_TTS_OUTPUT_MODE:-sherpa}
+      - OPEN_XIAOAI_CORRECTIONS_FILE=/opt/open-xiaoai/asr-corrections.json
     ports:
       - "18000:8000"
       - "18003:8003"
@@ -20,6 +21,8 @@ services:
       - ./models/sherpa-onnx-sense-voice:/opt/xiaozhi-esp32-server/models/sherpa-onnx-sense-voice
       # Hermes LLM provider with the device-control tool guard (type: hermes).
       - ../open-xiaoai/deploy/hermes/xiaozhi-provider/hermes.py:/opt/xiaozhi-esp32-server/core/providers/llm/hermes/hermes.py:ro
+      - ../../examples/xiaozhi/xiaozhi/text_corrections.py:/opt/xiaozhi-esp32-server/core/providers/llm/hermes/text_corrections.py:ro
+      - ${OPEN_XIAOAI_CORRECTIONS_PATH:-../../examples/xiaozhi/asr-corrections.json}:/opt/open-xiaoai/asr-corrections.json:ro
     depends_on:
       sherpa-tts:
         condition: service_healthy

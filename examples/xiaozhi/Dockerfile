@@ -67,6 +67,7 @@ ENV CLI=true \
 # 复制构建产物
 COPY --from=builder /app/.venv /app/.venv
 COPY examples/xiaozhi/main.py .
+COPY examples/xiaozhi/asr-corrections.json .
 COPY examples/xiaozhi/xiaozhi ./xiaozhi
 
 # 自动下载对应架构的 onnxruntime

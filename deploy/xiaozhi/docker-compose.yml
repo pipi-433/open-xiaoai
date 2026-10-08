@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     environment:
       PYTHONUNBUFFERED: "1"
+      OPEN_XIAOAI_CORRECTIONS_FILE: /app/asr-corrections.json
       OPEN_XIAOAI_HEALTH_LOG: /app/logs/audio-health.jsonl
       XIAOZHI_TTS_OUTPUT_MODE: ${XIAOZHI_TTS_OUTPUT_MODE:-sherpa}
     ports:
@@ -12,6 +13,8 @@ services:
     volumes:
       - audio-health:/app/logs
       - ../../examples/xiaozhi/config.py:/app/config.py
+      - ${OPEN_XIAOAI_CORRECTIONS_PATH:-../../examples/xiaozhi/asr-corrections.json}:/app/asr-corrections.json:ro
+      - ../../examples/xiaozhi/xiaozhi/text_corrections.py:/app/xiaozhi/text_corrections.py:ro
       - ../../examples/xiaozhi/xiaozhi/xiaoai.py:/app/xiaozhi/xiaoai.py:ro
       - ../../examples/xiaozhi/xiaozhi/services/audio/health.py:/app/xiaozhi/services/audio/health.py:ro
       - ../../examples/xiaozhi/xiaozhi/event.py:/app/xiaozhi/event.py:ro

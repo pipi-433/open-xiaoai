@@ -7,6 +7,7 @@ import time
 from config import APP_CONFIG
 from xiaozhi.event import EventManager
 from xiaozhi.local_exit import is_local_exit_command
+from xiaozhi.text_corrections import correct_text
 from xiaozhi.ref import set_xiaozhi
 from xiaozhi.services.audio.kws import KWS
 from xiaozhi.services.audio.vad import VAD
@@ -356,6 +357,9 @@ class XiaoZhi:
                 EventManager.on_local_exit()
                 print("👋 本地退出指令，等待下一次唤醒")
                 return
+            # Exit matching uses raw STT, so a naming rule cannot become a
+            # new exit instruction. Backend Hermes corrects its own input too.
+            text = correct_text(text)
             EventManager.on_stt()
             self.schedule(lambda: self.set_chat_message("user", text))
 
